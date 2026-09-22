@@ -37,3 +37,33 @@ BEGIN
 	CLOSE cur_nomes_youtubers;
 END;
 $$
+
+-- cursor não vinculado de query dinâmica
+-- exibindo noems de youtubers que começaram a partir de um nome específico
+DO $$
+DECLARE
+	-- 1. Declaração
+	cur_nomes_a_partir_de REFCURSOR;
+	v_youtuber VARCHAR(200);
+	v_ano INT := 2008;
+	v_nome_tabela VARCHAR(200) := 'tb_top_youtuebrs';
+BEGIN
+	2. Abertura
+	OPEN cur_nomes_a_partir_de FOR EXECUTE
+	format(
+		'SELECT youtuber FROM %s WHERE started >= $1',
+		v_nome_tabela
+	)
+	USING v_ano;
+	LOOP
+		-- 3. Recuperação de dados
+		FETCH cur_nomes_a_partir_de INTO v_youtuber;
+		EXIT WHEN NOT FOUND;
+		RAISE NOTICE '%', v_youtuber;
+	END LOOP;
+	-- 4. Fechamento
+	CLOSE cur_nomes_a_partir_de;
+END;
+$$
+
+-- Cursores vinculados e não vinculados; dinâmicas e não dinâmicas.
